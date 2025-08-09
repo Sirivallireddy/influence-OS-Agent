@@ -1,0 +1,35 @@
+from fastapi import FastAPI
+from pydantic import BaseModel
+import openai
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+app = FastAPI()
+
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+class ContentRequest(BaseModel):
+    topic: str
+
+@app.post("/generate-content")
+async def generate_content(req: ContentRequest):
+    try:
+        # Use OpenAI to generate content
+        response = openai.ChatCompletion.create(
+            model="gpt-4o-mini",  # Or "gpt-3.5-turbo"
+            messages=[
+                {"role": "system", "content": "You are an expert LinkedIn content writer."},
+                {"role": "user", "content": f"Write a professional LinkedIn post about {req.topic}. Make it engaging and concise."}
+            ],
+            max_tokens=300
+        )
+
+        post_text = response.choices[0].message["content"].strip()
+
+        return {"post": post_text}
+
+    except Exception as e:
+        return {"error": str(e)}
