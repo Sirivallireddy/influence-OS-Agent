@@ -1,0 +1,10 @@
+from fastapi import FastAPI
+from routes.linkedin import router as linkedin_router
+
+app = FastAPI()
+
+app.include_router(linkedin_router)
+
+@app.get("/")
+def read_root():
+    return {"message": "InfluenceOS AI Agent is running!"}
